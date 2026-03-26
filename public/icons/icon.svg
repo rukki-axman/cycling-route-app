@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- 背景 -->
+  <rect width="512" height="512" rx="96" fill="#1d4ed8"/>
+  <!-- 自転車ホイール（左） -->
+  <circle cx="160" cy="320" r="80" fill="none" stroke="white" stroke-width="24"/>
+  <circle cx="160" cy="320" r="12" fill="white"/>
+  <!-- 自転車ホイール（右） -->
+  <circle cx="352" cy="320" r="80" fill="none" stroke="white" stroke-width="24"/>
+  <circle cx="352" cy="320" r="12" fill="white"/>
+  <!-- フレーム -->
+  <polyline points="160,320 220,200 310,200 352,320" fill="none" stroke="white" stroke-width="24" stroke-linejoin="round"/>
+  <line x1="220" y1="200" x2="160" y2="320" stroke="white" stroke-width="24" stroke-linecap="round"/>
+  <line x1="310" y1="200" x2="256" y2="320" stroke="white" stroke-width="24" stroke-linecap="round"/>
+  <!-- ハンドルバー -->
+  <line x1="310" y1="200" x2="340" y2="180" stroke="white" stroke-width="24" stroke-linecap="round"/>
+  <line x1="325" y1="165" x2="355" y2="165" stroke="white" stroke-width="20" stroke-linecap="round"/>
+  <!-- ルート点線 -->
+  <path d="M 80 420 Q 180 370 256 400 Q 330 430 430 380" fill="none" stroke="#93c5fd" stroke-width="12" stroke-dasharray="20,12" stroke-linecap="round"/>
+</svg>

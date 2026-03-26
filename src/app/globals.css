@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+/* 地図を全画面表示するためにhtml/bodyの高さを100%にする */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/*
+ * iPhone ノッチ / Dynamic Island / ホームバー 対応
+ *
+ * viewport-fit=cover で画面端まで描画した後、
+ * safe-area-inset-* CSS 変数でコンテンツが隠れないよう余白を確保する。
+ *
+ * 使い方:
+ *   padding-bottom: env(safe-area-inset-bottom);
+ *   または Tailwind のインラインスタイル: style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+ */
+:root {
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-right:  env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left, 0px);
+}
+
+/* 下部オーバーレイ用ユーティリティ */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
