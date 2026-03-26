@@ -79,12 +79,13 @@ export default function SaveRouteDialog({ onSave, disabled }: SaveRouteDialogPro
       {/* モーダルオーバーレイ */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-[2000] bg-black/50 p-4"
           onClick={handleCancel}
         >
-          {/* ダイアログ本体（クリック伝播を止めて外側クリックで閉じないようにする） */}
+          {/* ダイアログ本体 — 画面の真ん中に固定配置 */}
           <div
-            className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm"
+            className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm
+                       fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-lg font-bold text-gray-800 mb-4">ルートを保存</h2>
