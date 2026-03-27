@@ -99,17 +99,7 @@ export default function RouteListPanel({
         </div>
       </div>
 
-      {/* ─── モバイル用：ドラムローラー ─── */}
-      {/* bottom-28: 下部コントロールバー（約7rem）の真上に配置 */}
-      <div className="sm:hidden absolute bottom-28 left-0 right-0 z-[999]">
-        <MobileRoutePicker
-          routes={routes}
-          selectedId={selectedId}
-          onSelect={onSelect}
-          onPreviewStart={onPreviewStart}
-          onPreviewEnd={onPreviewEnd}
-        />
-      </div>
+      {/* モバイル用は page.tsx の統合メニューパネルに移行済み */}
     </>
   );
 }

@@ -297,63 +297,113 @@ export default function Home() {
         </div>
       )}
 
-      {/* 保存ルート一覧パネル（ナビ中は非表示、PC は常に表示） */}
+      {/* ─── PC 用：左サイド保存ルートパネル（常に表示） ─── */}
       {!isNavigating && (
-        <RouteListPanel
-          routes={savedRoutes}
-          selectedId={selectedId}
-          onSelect={selectRoute}
-          onPreviewStart={startPreview}
-          onPreviewEnd={endPreview}
-          onRename={renameRoute}
-          onDelete={deleteRoute}
-        />
+        <div className="hidden sm:block">
+          <RouteListPanel
+            routes={savedRoutes}
+            selectedId={selectedId}
+            onSelect={selectRoute}
+            onPreviewStart={startPreview}
+            onPreviewEnd={endPreview}
+            onRename={renameRoute}
+            onDelete={deleteRoute}
+          />
+        </div>
       )}
 
-      {/* ─── モバイル：パネル開閉トグルバー ─── */}
-      {/* 画面下部に横長のバーを配置。タップしやすいサイズ（h-12, 横幅広め） */}
+      {/* ─── モバイル用：統合メニューパネル（トグルバー + 操作 + 保存ルート） ─── */}
       {!isNavigating && (
-        <div
-          className="sm:hidden absolute z-[1001] left-1/2 -translate-x-1/2"
-          style={{
-            bottom: isPanelOpen ? 'calc(8rem + env(safe-area-inset-bottom, 0px))' : '0px',
-          }}
-        >
+        <>
+          {/* トグルバー（常時表示） */}
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              togglePanel();
-            }}
-            className="w-36 h-10 bg-gray-800/90 backdrop-blur-sm text-white
+            className="sm:hidden absolute z-[1001] left-1/2 -translate-x-1/2 bottom-0
+                       w-36 h-9 bg-gray-800/90 backdrop-blur-sm text-white
                        rounded-t-xl flex items-center justify-center gap-2
                        shadow-lg active:bg-gray-600 select-none"
+            onClick={(e) => { e.stopPropagation(); e.preventDefault(); togglePanel(); }}
+            style={{ bottom: isPanelOpen ? undefined : '0px' }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              {isPanelOpen ? (
-                <polyline points="6,9 12,15 18,9" />
-              ) : (
-                <polyline points="6,15 12,9 18,15" />
-              )}
+              {isPanelOpen
+                ? <polyline points="6,9 12,15 18,9" />
+                : <polyline points="6,15 12,9 18,15" />}
             </svg>
             <span className="text-xs font-medium">
               {isPanelOpen ? '閉じる' : 'メニュー'}
             </span>
           </button>
-        </div>
+
+          {/* 展開パネル（操作 + 保存ルート一覧を統合） */}
+          {isPanelOpen && (
+            <div className="sm:hidden absolute bottom-0 left-0 right-0 z-[1000]"
+                 style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+              <div className="bg-gray-800/95 backdrop-blur-sm rounded-t-2xl p-3 shadow-lg
+                              max-h-[50vh] overflow-y-auto">
+                {/* 操作ボタン行 */}
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <InfoPanel stats={stats} />
+                  <ControlButtons
+                    onUndo={undoWaypoint}
+                    onReset={resetWaypoints}
+                    onCloseLoop={closeLoop}
+                    onSave={handleSave}
+                    waypointCount={stats.waypointCount}
+                    isLoop={isLoop}
+                  />
+                </div>
+                {isLoop && (
+                  <div className="mb-2 text-center">
+                    <span className="inline-block bg-green-600/90 text-white text-xs px-3 py-1 rounded-full">
+                      周回コース
+                    </span>
+                  </div>
+                )}
+                {/* 保存ルート一覧 */}
+                {savedRoutes.length > 0 && (
+                  <div className="border-t border-gray-600 pt-2">
+                    <p className="text-gray-400 text-xs mb-2">保存ルート</p>
+                    <div className="flex flex-col gap-1">
+                      {savedRoutes.map((route) => (
+                        <div
+                          key={route.id}
+                          className={`rounded-lg px-3 py-2 flex items-center justify-between
+                            ${route.id === selectedId
+                              ? 'bg-blue-600/30 border border-blue-400'
+                              : 'bg-white/10 border border-transparent active:bg-white/20'}`}
+                          onClick={() => selectRoute(route.id)}
+                        >
+                          <div className="min-w-0">
+                            <p className="text-white text-sm font-medium truncate">{route.name}</p>
+                            <p className="text-gray-400 text-xs">
+                              {route.totalDistance.toFixed(1)} km
+                              {route.isLoop ? ' ・ 周回' : ''}
+                            </p>
+                          </div>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); deleteRoute(route.id); }}
+                            className="text-red-400 text-xs ml-2 flex-shrink-0 active:text-red-300"
+                          >
+                            削除
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
-      {/* ─── 下部オーバーレイ：情報パネル + 操作ボタン ─── */}
-      {/* PC: 常に表示  モバイル: isPanelOpen で制御 */}
+      {/* ─── PC 用：下部オーバーレイ（常に表示） ─── */}
       {!isNavigating && (
-        <div className={`absolute bottom-0 left-0 right-0 z-[1000] p-2 sm:p-4
-                         sm:block ${isPanelOpen ? 'block' : 'hidden sm:block'}`}
-             style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}>
-          <div className="bg-gray-800/90 backdrop-blur-sm rounded-xl p-2 sm:p-4 shadow-lg
-                          flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
+        <div className="hidden sm:block absolute bottom-0 left-0 right-0 z-[1000] p-4">
+          <div className="bg-gray-800/90 backdrop-blur-sm rounded-xl p-4 shadow-lg
+                          flex flex-row items-center justify-between gap-3">
             <InfoPanel stats={stats} />
-
             <ControlButtons
               onUndo={undoWaypoint}
               onReset={resetWaypoints}
@@ -363,8 +413,6 @@ export default function Home() {
               isLoop={isLoop}
             />
           </div>
-
-          {/* 周回コースバッジ */}
           {isLoop && (
             <div className="mt-1 text-center">
               <span className="inline-block bg-green-600/90 text-white text-xs px-3 py-1 rounded-full">
