@@ -98,7 +98,8 @@ const MapView = dynamic(
 
 export default function Home() {
   // モバイルで下部パネルを折りたたむ（地図を広く使える）
-  const [isPanelOpen, setIsPanelOpen] = useState(true);
+  // PC（sm 以上）では常に表示、モバイルは初期状態で閉じる
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
   // トグル二重発火を防ぐタイムスタンプガード
   const lastToggleRef = useRef(0);
   const togglePanel = useCallback(() => {
@@ -296,8 +297,8 @@ export default function Home() {
         </div>
       )}
 
-      {/* 保存ルート一覧パネル（ナビ中・パネル閉じ時は非表示） */}
-      {!isNavigating && isPanelOpen && (
+      {/* 保存ルート一覧パネル（ナビ中は非表示、PC は常に表示） */}
+      {!isNavigating && (
         <RouteListPanel
           routes={savedRoutes}
           selectedId={selectedId}
@@ -343,9 +344,11 @@ export default function Home() {
         </div>
       )}
 
-      {/* ─── 下部オーバーレイ：情報パネル + 操作ボタン（ナビ中は非表示） ─── */}
-      {!isNavigating && isPanelOpen && (
-        <div className="absolute bottom-0 left-0 right-0 z-[1000] p-2 sm:p-4"
+      {/* ─── 下部オーバーレイ：情報パネル + 操作ボタン ─── */}
+      {/* PC: 常に表示  モバイル: isPanelOpen で制御 */}
+      {!isNavigating && (
+        <div className={`absolute bottom-0 left-0 right-0 z-[1000] p-2 sm:p-4
+                         sm:block ${isPanelOpen ? 'block' : 'hidden sm:block'}`}
              style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}>
           <div className="bg-gray-800/90 backdrop-blur-sm rounded-xl p-2 sm:p-4 shadow-lg
                           flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">

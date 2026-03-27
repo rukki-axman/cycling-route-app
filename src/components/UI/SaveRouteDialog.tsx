@@ -13,6 +13,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 interface SaveRouteDialogProps {
   /** 保存時に呼ばれるコールバック（ルート名を引数として渡す） */
@@ -76,16 +77,15 @@ export default function SaveRouteDialog({ onSave, disabled }: SaveRouteDialogPro
         保存
       </button>
 
-      {/* モーダルオーバーレイ */}
-      {isOpen && (
+      {/* モーダルオーバーレイ — createPortal で body 直下に描画 */}
+      {/* 親の z-index stacking context から脱出するために portal を使う */}
+      {isOpen && createPortal(
         <div
-          className="fixed inset-0 z-[2000] bg-black/50 p-4"
+          className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center p-4"
           onClick={handleCancel}
         >
-          {/* ダイアログ本体 — 画面の真ん中に固定配置 */}
           <div
-            className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm
-                       fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+            className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-lg font-bold text-gray-800 mb-4">ルートを保存</h2>
@@ -120,7 +120,8 @@ export default function SaveRouteDialog({ onSave, disabled }: SaveRouteDialogPro
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
