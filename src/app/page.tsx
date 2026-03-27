@@ -304,10 +304,20 @@ export default function Home() {
       {/* ─── モバイル：パネル開閉トグルボタン ─── */}
       {!isNavigating && (
         <button
-          onClick={() => setIsPanelOpen((prev) => !prev)}
+          onPointerDown={(e) => {
+            // モバイルでのタッチ二重発火を防止
+            e.stopPropagation();
+            e.preventDefault();
+            setIsPanelOpen((prev) => !prev);
+          }}
+          onClick={(e) => {
+            // PC のクリックもここで処理（pointerDown で処理済みなら二重にならない）
+            e.stopPropagation();
+            e.preventDefault();
+          }}
           className="sm:hidden absolute z-[1001] right-3 bg-gray-800/80 backdrop-blur-sm
                      text-white rounded-full w-10 h-10 flex items-center justify-center
-                     shadow-lg active:bg-gray-700 transition-all"
+                     shadow-lg active:bg-gray-700"
           style={{
             bottom: isPanelOpen ? 'calc(8rem + env(safe-area-inset-bottom, 0px))' : 'max(0.75rem, env(safe-area-inset-bottom, 0px))',
           }}
@@ -316,10 +326,8 @@ export default function Home() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             {isPanelOpen ? (
-              /* 下矢印（パネルを隠す） */
               <polyline points="6,9 12,15 18,9" />
             ) : (
-              /* 上矢印 + ツールバーアイコン（パネルを表示） */
               <polyline points="6,15 12,9 18,15" />
             )}
           </svg>
