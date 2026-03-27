@@ -24,7 +24,7 @@
 
 'use client';
 
-import { useState, useEffect, Component, ReactNode } from 'react';
+import { useState, useEffect, useRef, useCallback, Component, ReactNode } from 'react';
 import dynamic from 'next/dynamic';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useRoute } from '@/hooks/useRoute';
@@ -99,6 +99,14 @@ const MapView = dynamic(
 export default function Home() {
   // モバイルで下部パネルを折りたたむ（地図を広く使える）
   const [isPanelOpen, setIsPanelOpen] = useState(true);
+  // トグル二重発火を防ぐタイムスタンプガード
+  const lastToggleRef = useRef(0);
+  const togglePanel = useCallback(() => {
+    const now = Date.now();
+    if (now - lastToggleRef.current < 400) return; // 400ms 以内の連打を無視
+    lastToggleRef.current = now;
+    setIsPanelOpen((prev) => !prev);
+  }, []);
 
   const { center, position, startTracking, stopTracking } =
     useGeolocation();
@@ -301,37 +309,38 @@ export default function Home() {
         />
       )}
 
-      {/* ─── モバイル：パネル開閉トグルボタン ─── */}
+      {/* ─── モバイル：パネル開閉トグルバー ─── */}
+      {/* 画面下部に横長のバーを配置。タップしやすいサイズ（h-12, 横幅広め） */}
       {!isNavigating && (
-        <button
-          onPointerDown={(e) => {
-            // モバイルでのタッチ二重発火を防止
-            e.stopPropagation();
-            e.preventDefault();
-            setIsPanelOpen((prev) => !prev);
-          }}
-          onClick={(e) => {
-            // PC のクリックもここで処理（pointerDown で処理済みなら二重にならない）
-            e.stopPropagation();
-            e.preventDefault();
-          }}
-          className="sm:hidden absolute z-[1001] right-3 bg-gray-800/80 backdrop-blur-sm
-                     text-white rounded-full w-10 h-10 flex items-center justify-center
-                     shadow-lg active:bg-gray-700"
+        <div
+          className="sm:hidden absolute z-[1001] left-1/2 -translate-x-1/2"
           style={{
-            bottom: isPanelOpen ? 'calc(8rem + env(safe-area-inset-bottom, 0px))' : 'max(0.75rem, env(safe-area-inset-bottom, 0px))',
+            bottom: isPanelOpen ? 'calc(8rem + env(safe-area-inset-bottom, 0px))' : '0px',
           }}
-          aria-label={isPanelOpen ? 'パネルを隠す' : 'パネルを表示'}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            {isPanelOpen ? (
-              <polyline points="6,9 12,15 18,9" />
-            ) : (
-              <polyline points="6,15 12,9 18,15" />
-            )}
-          </svg>
-        </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              togglePanel();
+            }}
+            className="w-36 h-10 bg-gray-800/90 backdrop-blur-sm text-white
+                       rounded-t-xl flex items-center justify-center gap-2
+                       shadow-lg active:bg-gray-600 select-none"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              {isPanelOpen ? (
+                <polyline points="6,9 12,15 18,9" />
+              ) : (
+                <polyline points="6,15 12,9 18,15" />
+              )}
+            </svg>
+            <span className="text-xs font-medium">
+              {isPanelOpen ? '閉じる' : 'メニュー'}
+            </span>
+          </button>
+        </div>
       )}
 
       {/* ─── 下部オーバーレイ：情報パネル + 操作ボタン（ナビ中は非表示） ─── */}
