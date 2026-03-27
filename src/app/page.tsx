@@ -24,7 +24,7 @@
 
 'use client';
 
-import { useEffect, Component, ReactNode } from 'react';
+import { useState, useEffect, Component, ReactNode } from 'react';
 import dynamic from 'next/dynamic';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useRoute } from '@/hooks/useRoute';
@@ -97,6 +97,9 @@ const MapView = dynamic(
 });
 
 export default function Home() {
+  // モバイルで下部パネルを折りたたむ（地図を広く使える）
+  const [isPanelOpen, setIsPanelOpen] = useState(true);
+
   const { center, position, startTracking, stopTracking } =
     useGeolocation();
 
@@ -285,8 +288,8 @@ export default function Home() {
         </div>
       )}
 
-      {/* 保存ルート一覧パネル（ナビ中は非表示） */}
-      {!isNavigating && (
+      {/* 保存ルート一覧パネル（ナビ中・パネル閉じ時は非表示） */}
+      {!isNavigating && isPanelOpen && (
         <RouteListPanel
           routes={savedRoutes}
           selectedId={selectedId}
@@ -298,8 +301,33 @@ export default function Home() {
         />
       )}
 
-      {/* ─── 下部オーバーレイ：情報パネル + 操作ボタン（ナビ中は非表示） ─── */}
+      {/* ─── モバイル：パネル開閉トグルボタン ─── */}
       {!isNavigating && (
+        <button
+          onClick={() => setIsPanelOpen((prev) => !prev)}
+          className="sm:hidden absolute z-[1001] right-3 bg-gray-800/80 backdrop-blur-sm
+                     text-white rounded-full w-10 h-10 flex items-center justify-center
+                     shadow-lg active:bg-gray-700 transition-all"
+          style={{
+            bottom: isPanelOpen ? 'calc(8rem + env(safe-area-inset-bottom, 0px))' : 'max(0.75rem, env(safe-area-inset-bottom, 0px))',
+          }}
+          aria-label={isPanelOpen ? 'パネルを隠す' : 'パネルを表示'}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            {isPanelOpen ? (
+              /* 下矢印（パネルを隠す） */
+              <polyline points="6,9 12,15 18,9" />
+            ) : (
+              /* 上矢印 + ツールバーアイコン（パネルを表示） */
+              <polyline points="6,15 12,9 18,15" />
+            )}
+          </svg>
+        </button>
+      )}
+
+      {/* ─── 下部オーバーレイ：情報パネル + 操作ボタン（ナビ中は非表示） ─── */}
+      {!isNavigating && isPanelOpen && (
         <div className="absolute bottom-0 left-0 right-0 z-[1000] p-2 sm:p-4"
              style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}>
           <div className="bg-gray-800/90 backdrop-blur-sm rounded-xl p-2 sm:p-4 shadow-lg

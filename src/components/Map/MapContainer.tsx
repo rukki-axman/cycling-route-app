@@ -248,6 +248,15 @@ function NavigationFollower({
 
 function LocateMeButton() {
   const map = useMap();
+  const btnRef = useRef<HTMLDivElement>(null);
+
+  // Leaflet の地図クリックイベントが発火しないように伝播を止める
+  useEffect(() => {
+    if (btnRef.current) {
+      L.DomEvent.disableClickPropagation(btnRef.current);
+      L.DomEvent.disableScrollPropagation(btnRef.current);
+    }
+  }, []);
 
   const handleClick = () => {
     if (!navigator.geolocation) {
@@ -268,7 +277,8 @@ function LocateMeButton() {
   };
 
   return (
-    <div className="leaflet-bottom leaflet-right" style={{ marginBottom: '90px', marginRight: '10px' }}>
+    <div ref={btnRef} className="leaflet-bottom leaflet-right"
+         style={{ marginBottom: '20px', marginRight: '10px' }}>
       <div className="leaflet-control">
         <button
           onClick={handleClick}
@@ -279,7 +289,6 @@ function LocateMeButton() {
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"
                strokeLinecap="round" strokeLinejoin="round">
-            {/* 十字線 + 円 = GPS アイコン */}
             <circle cx="12" cy="12" r="3" fill="#3b82f6" stroke="none" />
             <circle cx="12" cy="12" r="8" />
             <line x1="12" y1="2" x2="12" y2="6" />
