@@ -240,6 +240,60 @@ function NavigationFollower({
 }
 
 // ══════════════════════════════════════════════════════════════════
+//  LocateMeButton - 現在地に戻るボタン
+//
+//  地図の右下に常時表示。タップすると GPS で現在地を取得し、
+//  地図の中心をそこに移動する。
+// ══════════════════════════════════════════════════════════════════
+
+function LocateMeButton() {
+  const map = useMap();
+
+  const handleClick = () => {
+    if (!navigator.geolocation) {
+      alert('このデバイスは位置情報に対応していません。');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        map.flyTo([pos.coords.latitude, pos.coords.longitude], 16, {
+          duration: 0.8,
+        });
+      },
+      (err) => {
+        alert('位置情報を取得できませんでした: ' + err.message);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  return (
+    <div className="leaflet-bottom leaflet-right" style={{ marginBottom: '90px', marginRight: '10px' }}>
+      <div className="leaflet-control">
+        <button
+          onClick={handleClick}
+          className="bg-white rounded-lg shadow-lg w-10 h-10 flex items-center justify-center
+                     hover:bg-gray-100 active:bg-gray-200 transition-colors border border-gray-300"
+          aria-label="現在地に移動"
+          title="現在地に移動"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"
+               strokeLinecap="round" strokeLinejoin="round">
+            {/* 十字線 + 円 = GPS アイコン */}
+            <circle cx="12" cy="12" r="3" fill="#3b82f6" stroke="none" />
+            <circle cx="12" cy="12" r="8" />
+            <line x1="12" y1="2" x2="12" y2="6" />
+            <line x1="12" y1="18" x2="12" y2="22" />
+            <line x1="2" y1="12" x2="6" y2="12" />
+            <line x1="18" y1="12" x2="22" y2="12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
 //  メインコンポーネント
 // ══════════════════════════════════════════════════════════════════
 
@@ -277,6 +331,9 @@ export default function MapView({
       />
 
       <MapClickHandler onMapClick={onMapClick} />
+
+      {/* ─── 現在地に戻るボタン ─── */}
+      <LocateMeButton />
 
       {/* ─── 地図の自動移動コントローラー ─── */}
       <MapViewController
