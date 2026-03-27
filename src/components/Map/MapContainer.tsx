@@ -277,8 +277,8 @@ function LocateMeButton() {
   };
 
   return (
-    <div ref={btnRef} className="leaflet-bottom leaflet-right"
-         style={{ marginBottom: '100px', marginRight: '10px' }}>
+    <div ref={btnRef} className="leaflet-top leaflet-right"
+         style={{ marginTop: '10px', marginRight: '10px' }}>
       <div className="leaflet-control">
         <button
           onClick={handleClick}
